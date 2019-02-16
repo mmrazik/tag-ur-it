@@ -31,6 +31,11 @@ export interface ITagsRule {
   noneMatch: string;
 }
 
+export interface ITagResults {
+  tagsToAdd: string[]
+  assigneesToAdd: string[]
+}
+
 export async function loadYamlContents(yamlPath: string) {
   return new Promise<any>((resolve, reject) => {
     fs.readFile(yamlPath, function(err, data) {
@@ -44,13 +49,73 @@ export async function loadYamlContents(yamlPath: string) {
   }); 
 }
 
-export function deserialize(contents: string): IIssueRules {
-  let yaml = jsyaml.safeLoad(contents);
-
-  let ir: IIssueRules = <IIssueRules>{};
-  ir.rules = yaml['rules']; 
-  ir.noMatches = yaml['nomatches'];
-  ir.tags = yaml['tags'];
-
-  return ir;
+function splitLines(contents: string): string[] {
+  return contents.split('/\r\n|\n|\r/');
 }
+
+export class RuleEngine {
+  
+  private _valueForMap: {[key:string]:boolean} = {};
+
+  constructor(contents: string) {
+    let yaml = jsyaml.safeLoad(contents);
+    this.issueRules = <IIssueRules>{};
+    this.issueRules.rules = yaml['rules']; 
+    this.issueRules.noMatches = yaml['nomatches'];
+    this.issueRules.tags = yaml['tags'];
+
+    this.issueRules.rules.forEach((rule: IIssueRule) => {
+      if (rule.valueFor) {
+        this._valueForMap[rule.valueFor] = true;
+      }
+    })
+  }
+
+  public issueRules: IIssueRules;
+
+  private processRulesForLine(line: string): ITagResults {
+    let results: ITagResults = <ITagResults>{};
+    line = line.trim();
+  
+    // valuesFor
+    let ci = line.indexOf(':');
+    if (ci > 0 && line.length > ci) {
+      let key = line.substr(0, ci);
+
+      // only process this line against all rules if key is in any rule (n^2)
+      if (this._valueForMap[key] == true) {
+        let value = line.substr(ci+1);
+
+        this.issueRules.rules.forEach((rule: IIssueRule) => {
+          if (rule.equals) {
+
+          } 
+        })
+      }
+    }
+
+    return results;
+  }  
+
+  public processRules(issueContents: string): ITagResults {
+    let results: ITagResults = <ITagResults>{};
+  
+    splitLines(issueContents).forEach((line: string) => {
+      let lr = this.processRulesForLine(line);
+      results.tagsToAdd.concat(lr.tagsToAdd);
+      results.assigneesToAdd.concat(lr.assigneesToAdd);
+    });
+    
+    return results;
+  }  
+}
+
+
+
+
+
+
+
+
+
+

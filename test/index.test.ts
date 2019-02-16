@@ -35,10 +35,11 @@ describe('My Probot app', () => {
 
   test('can load basic yaml file', async(done) => {
     let contents = await irm.loadYamlContents(testYamlPath('basic'));
-    let issueRules: irm.IIssueRules = irm.deserialize(contents);
-    expect(issueRules.rules.length).toBeGreaterThan(0);
-    expect(issueRules.noMatches.length).toBeGreaterThan(0);
-    expect(issueRules.tags.length).toBeGreaterThan(0);
+    let eng: irm.RuleEngine = new irm.RuleEngine(contents);
+
+    expect(eng.issueRules.rules.length).toBeGreaterThan(0);
+    expect(eng.issueRules.noMatches.length).toBeGreaterThan(0);
+    expect(eng.issueRules.tags.length).toBeGreaterThan(0);
     done();
   })
 
