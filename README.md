@@ -1,8 +1,12 @@
+![tag-ur-it](art/tag-ur-it.png)
+
+CAUTION: still under early development.
+
 # tag-ur-it
 
-> A GitHub App built with [Probot](https://github.com/probot/probot) that Bot to automatically tag issues
+> A GitHub App  that Bot to automatically tag issues based on a rules yml file in the repo
 
-## Setup
+## Development
 
 ```sh
 # Install dependencies
@@ -24,3 +28,6 @@ For more, check out the [Contributing Guide](CONTRIBUTING.md).
 ## License
 
 [ISC](LICENSE) © 2019 Bryan MacFarlane <bryanmacf@gmail.com> (https://github.com/bryanmacfarlane)
+
+## Credit
+Built with [Probot](https://github.com/probot/probot)
