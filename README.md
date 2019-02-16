@@ -1,10 +1,13 @@
-![tag-ur-it](art/tag-ur-it.png)
+
+ <p align="center"> 
+    <img src="art/tag-ur-it.png" alt="alternate text">
+ </p>
 
 CAUTION: still under early development.
 
 # tag-ur-it
 
-> A GitHub App  that Bot to automatically tag issues based on a rules yml file in the repo
+A GitHub App  that Bot to automatically tag issues based on a rules yml file in the repo
 
 ## Development
 
