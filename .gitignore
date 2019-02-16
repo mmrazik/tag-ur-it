@@ -1,0 +1,7 @@
+# never checkin env secrets
+.env
+
+# output
+lib
+
+node_modules

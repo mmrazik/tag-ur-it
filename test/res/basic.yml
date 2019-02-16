@@ -1,0 +1,28 @@
+
+# primary rules
+rules:
+- valueFor: 'Item:'
+  contains: 'Foo'
+  addTags: ['Area: Foo']
+  assign: ['Bob']
+- valueFor: 'Item:'
+  equals: 'Bar'
+  addTags: ['Area: Bar']
+- option: 'Feature'
+  addTags: ['enhancement']
+- option: 'Bug'
+  addTags: ['bug']
+
+# runs if first set had no matches
+# add likely teams to look at based on text searches
+nomatches:
+- contains: 'foo' 
+  addTags: ['Area: foo']
+
+# always runs after rules.  look for missing or invalid sets of tags
+tags:
+- noneIn: ['bug', 'feature', 'question']
+  addTags: ['triage']
+- noneMatch: '\s*Area:\s*([^]*)'
+  addTags: ['route']
+
