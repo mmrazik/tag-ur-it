@@ -23,7 +23,7 @@ export interface IIssueRule {
 
   // actions
   addTags: string[];
-  assign: string;
+  assign: string[];
 }
 
 export interface ITagsRule {
@@ -100,8 +100,8 @@ export class RuleEngine {
           }
 
           if (match) {
-            results.tagsToAdd = results.tagsToAdd.concat(rule.addTags);
-            results.assigneesToAdd = results.assigneesToAdd.concat(rule.assign);
+            this.pushValues(results.tagsToAdd, rule.addTags);
+            this.pushValues(results.assigneesToAdd, rule.assign);
           }
         }
       }
@@ -126,12 +126,22 @@ export class RuleEngine {
     let lines: string[] = splitLines(issueContents);
     for (let i=0; i < lines.length; i++) {
       let lr = this.processRulesForLine(lines[i], rules);
-      results.tagsToAdd = results.tagsToAdd.concat(lr.tagsToAdd);
-      results.assigneesToAdd = results.assigneesToAdd.concat(lr.assigneesToAdd);
+      this.pushValues(results.tagsToAdd, lr.tagsToAdd);
+      this.pushValues(results.assigneesToAdd, lr.assigneesToAdd);
     }
 
     return results;
-  }  
+  }
+  
+  private pushValues(arr: string[], values: string[]) {
+    if (values) {
+      for (let i=0; i<values.length; i++) {
+        if (values[i] && arr.indexOf(values[i]) < 0) {
+          arr.push(values[i]);
+        }
+      }
+    }
+  }
 }
 
 

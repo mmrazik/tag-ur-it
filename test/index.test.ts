@@ -77,7 +77,6 @@ describe('My Probot app', () => {
     let contents: string = 'some line\r\n  item: aFooBar \r other line \r\n Item: baz';
 
     let res: irm.ITagResults = eng.processRules(contents, issueRules.rules);
-    console.log(res);
     expect(res.tagsToAdd.indexOf('Area: Foo')).toBeGreaterThanOrEqual(0);
     expect(res.assigneesToAdd.indexOf('John')).toBeGreaterThanOrEqual(0);
     done();
