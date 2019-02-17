@@ -43,6 +43,27 @@ describe('My Probot app', () => {
     done();
   })
 
+  test('splitLines correctly splits on new lines', async(done) => {
+    // mix CR and casing along with whitespace
+    let contents: string = 'some line\r\n  Item: Bar \r other line \r\n Item: baz';
+    let lines: string[] = irm.splitLines(contents);
+    expect(lines.length).toBe(4);
+    done();
+  })
+
+  test('valueFor equals rules work', async(done) => {
+    let yc = await irm.loadYamlContents(testYamlPath('valueFor'));
+    let eng: irm.RuleEngine = new irm.RuleEngine(yc);
+
+    // mix CR and casing along with whitespace
+    let contents: string = 'some line\r\n  Item: Bar \r other line \r\n Item: baz';
+
+    let res: irm.ITagResults = eng.processRules(contents);
+    expect(res.tagsToAdd.indexOf('Area: Bar')).toBeGreaterThanOrEqual(0);
+    expect(res.assigneesToAdd.indexOf('John')).toBeGreaterThanOrEqual(0);
+    done();
+  })  
+
   // test('creates a comment when an issue is opened', async (done) => {
   //   // Test that we correctly return a test token
   //   nock('https://api.github.com')

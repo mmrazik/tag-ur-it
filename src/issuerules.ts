@@ -49,8 +49,8 @@ export async function loadYamlContents(yamlPath: string) {
   }); 
 }
 
-function splitLines(contents: string): string[] {
-  return contents.split('/\r\n|\n|\r/');
+export function splitLines(contents: string): string[] {
+  return contents.split(/\r\n|\n|\r/);
 }
 
 export class RuleEngine {
@@ -66,7 +66,7 @@ export class RuleEngine {
 
     this.issueRules.rules.forEach((rule: IIssueRule) => {
       if (rule.valueFor) {
-        this._valueForMap[rule.valueFor] = true;
+        this._valueForMap[rule.valueFor.toUpperCase()] = true;
       }
     })
   }
@@ -75,22 +75,29 @@ export class RuleEngine {
 
   private processRulesForLine(line: string): ITagResults {
     let results: ITagResults = <ITagResults>{};
+    results.tagsToAdd = [];
+    results.assigneesToAdd = [];
+
     line = line.trim();
   
     // valuesFor
     let ci = line.indexOf(':');
-    if (ci > 0 && line.length > ci) {
+    if (ci > 0 && line.length + 1 > ci) {
       let key = line.substr(0, ci);
 
       // only process this line against all rules if key is in any rule (n^2)
-      if (this._valueForMap[key] == true) {
-        let value = line.substr(ci+1);
+      if (this._valueForMap[key.toUpperCase()] == true) {
+        let value = line.substr(ci+1).trim().toUpperCase();
 
-        this.issueRules.rules.forEach((rule: IIssueRule) => {
+        for (let i = 0; i < this.issueRules.rules.length; i++) {
+          let rule: IIssueRule = this.issueRules.rules[i];
           if (rule.equals) {
-
+            if (rule.equals.toUpperCase() === value) {
+              results.tagsToAdd = results.tagsToAdd.concat(rule.addTags);
+              results.assigneesToAdd = results.assigneesToAdd.concat(rule.assign);
+            }
           } 
-        })
+        }
       }
     }
 
@@ -99,13 +106,16 @@ export class RuleEngine {
 
   public processRules(issueContents: string): ITagResults {
     let results: ITagResults = <ITagResults>{};
-  
-    splitLines(issueContents).forEach((line: string) => {
-      let lr = this.processRulesForLine(line);
-      results.tagsToAdd.concat(lr.tagsToAdd);
-      results.assigneesToAdd.concat(lr.assigneesToAdd);
-    });
-    
+    results.tagsToAdd = [];
+    results.assigneesToAdd = [];
+
+    let lines: string[] = splitLines(issueContents);
+    for (let i=0; i < lines.length; i++) {
+      let lr = this.processRulesForLine(lines[i]);
+      results.tagsToAdd = results.tagsToAdd.concat(lr.tagsToAdd);
+      results.assigneesToAdd = results.assigneesToAdd.concat(lr.assigneesToAdd);
+    }
+
     return results;
   }  
 }
