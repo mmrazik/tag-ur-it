@@ -77,7 +77,8 @@ export class RuleEngine {
     let results: ITagResults = <ITagResults>{};
     results.tagsToAdd = [];
     results.assigneesToAdd = [];
-
+    let match: boolean = false;
+    
     line = line.trim();
   
     // valuesFor
@@ -91,12 +92,18 @@ export class RuleEngine {
 
         for (let i = 0; i < this.issueRules.rules.length; i++) {
           let rule: IIssueRule = this.issueRules.rules[i];
-          if (rule.equals) {
-            if (rule.equals.toUpperCase() === value) {
-              results.tagsToAdd = results.tagsToAdd.concat(rule.addTags);
-              results.assigneesToAdd = results.assigneesToAdd.concat(rule.assign);
-            }
-          } 
+          if (rule.equals && rule.equals.toUpperCase() === value) {
+            match = true;
+          }
+          
+          if (rule.contains && value.indexOf(rule.contains.toUpperCase()) >= 0) {
+            match = true;
+          }
+
+          if (match) {
+            results.tagsToAdd = results.tagsToAdd.concat(rule.addTags);
+            results.assigneesToAdd = results.assigneesToAdd.concat(rule.assign);
+          }
         }
       }
     }

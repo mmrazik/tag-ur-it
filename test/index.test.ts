@@ -56,13 +56,30 @@ describe('My Probot app', () => {
     let eng: irm.RuleEngine = new irm.RuleEngine(yc);
 
     // mix CR and casing along with whitespace
-    let contents: string = 'some line\r\n  Item: Bar \r other line \r\n Item: baz';
+    // notice case insensitive value on key and value
+    let contents: string = 'some line\r\n  item: Bar \r other line \r\n Item: baz';
 
     let res: irm.ITagResults = eng.processRules(contents);
     expect(res.tagsToAdd.indexOf('Area: Bar')).toBeGreaterThanOrEqual(0);
     expect(res.assigneesToAdd.indexOf('John')).toBeGreaterThanOrEqual(0);
     done();
-  })  
+  })
+
+  test('valueFor contains rules work', async(done) => {
+    let yc = await irm.loadYamlContents(testYamlPath('valueFor'));
+    let eng: irm.RuleEngine = new irm.RuleEngine(yc);
+
+    // aFooBar should match the rule of contains Foo
+    // mix CR and casing along with whitespace
+    // notice case insensitive value on key and value
+    let contents: string = 'some line\r\n  item: aFooBar \r other line \r\n Item: baz';
+
+    let res: irm.ITagResults = eng.processRules(contents);
+    console.log(res);
+    expect(res.tagsToAdd.indexOf('Area: Foo')).toBeGreaterThanOrEqual(0);
+    expect(res.assigneesToAdd.indexOf('John')).toBeGreaterThanOrEqual(0);
+    done();
+  })    
 
   // test('creates a comment when an issue is opened', async (done) => {
   //   // Test that we correctly return a test token
