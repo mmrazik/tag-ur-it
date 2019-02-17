@@ -53,31 +53,29 @@ export function splitLines(contents: string): string[] {
   return contents.split(/\r\n|\n|\r/);
 }
 
+export function parseYamlContents(contents: string): IIssueRules {
+  let yaml = jsyaml.safeLoad(contents);
+  
+  let issueRules: IIssueRules = <IIssueRules>{};
+  issueRules.rules = yaml['rules']; 
+  issueRules.noMatches = yaml['nomatches'];
+  issueRules.tags = yaml['tags'];  
+
+  return issueRules;
+}
+
 export class RuleEngine {
   
   private _valueForMap: {[key:string]:boolean} = {};
 
-  constructor(contents: string) {
-    let yaml = jsyaml.safeLoad(contents);
-    this.issueRules = <IIssueRules>{};
-    this.issueRules.rules = yaml['rules']; 
-    this.issueRules.noMatches = yaml['nomatches'];
-    this.issueRules.tags = yaml['tags'];
-
-    this.issueRules.rules.forEach((rule: IIssueRule) => {
-      if (rule.valueFor) {
-        this._valueForMap[rule.valueFor.toUpperCase()] = true;
-      }
-    })
+  constructor() {
+   
   }
 
-  public issueRules: IIssueRules;
-
-  private processRulesForLine(line: string): ITagResults {
+  private processRulesForLine(line: string, rules: IIssueRule[]): ITagResults {
     let results: ITagResults = <ITagResults>{};
     results.tagsToAdd = [];
     results.assigneesToAdd = [];
-    let match: boolean = false;
     
     line = line.trim();
   
@@ -90,8 +88,9 @@ export class RuleEngine {
       if (this._valueForMap[key.toUpperCase()] == true) {
         let value = line.substr(ci+1).trim().toUpperCase();
 
-        for (let i = 0; i < this.issueRules.rules.length; i++) {
-          let rule: IIssueRule = this.issueRules.rules[i];
+        for (let i = 0; i < rules.length; i++) {
+          let match: boolean = false;
+          let rule: IIssueRule = rules[i];
           if (rule.equals && rule.equals.toUpperCase() === value) {
             match = true;
           }
@@ -111,14 +110,22 @@ export class RuleEngine {
     return results;
   }  
 
-  public processRules(issueContents: string): ITagResults {
+  public processRules(issueContents: string, rules: IIssueRule[]): ITagResults {
     let results: ITagResults = <ITagResults>{};
     results.tagsToAdd = [];
     results.assigneesToAdd = [];
 
+    this._valueForMap = {};
+    for (let i=0; i < rules.length; i++) {
+      let key: string | undefined = rules[i].valueFor;
+      if (key) {
+        this._valueForMap[key.toUpperCase()] = true;
+      }
+    }  
+
     let lines: string[] = splitLines(issueContents);
     for (let i=0; i < lines.length; i++) {
-      let lr = this.processRulesForLine(lines[i]);
+      let lr = this.processRulesForLine(lines[i], rules);
       results.tagsToAdd = results.tagsToAdd.concat(lr.tagsToAdd);
       results.assigneesToAdd = results.assigneesToAdd.concat(lr.assigneesToAdd);
     }

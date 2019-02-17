@@ -33,13 +33,13 @@ describe('My Probot app', () => {
     app.app = () => 'test'
   })
 
-  test('can load basic yaml file', async(done) => {
-    let contents = await irm.loadYamlContents(testYamlPath('basic'));
-    let eng: irm.RuleEngine = new irm.RuleEngine(contents);
+  test('can parse basic yaml file', async(done) => {
+    let yc = await irm.loadYamlContents(testYamlPath('basic'));
+    let issueRules: irm.IIssueRules = irm.parseYamlContents(yc);
 
-    expect(eng.issueRules.rules.length).toBeGreaterThan(0);
-    expect(eng.issueRules.noMatches.length).toBeGreaterThan(0);
-    expect(eng.issueRules.tags.length).toBeGreaterThan(0);
+    expect(issueRules.rules.length).toBeGreaterThan(0);
+    expect(issueRules.noMatches.length).toBeGreaterThan(0);
+    expect(issueRules.tags.length).toBeGreaterThan(0);
     done();
   })
 
@@ -53,13 +53,14 @@ describe('My Probot app', () => {
 
   test('valueFor equals rules work', async(done) => {
     let yc = await irm.loadYamlContents(testYamlPath('valueFor'));
-    let eng: irm.RuleEngine = new irm.RuleEngine(yc);
+    let issueRules: irm.IIssueRules = irm.parseYamlContents(yc);
+    let eng: irm.RuleEngine = new irm.RuleEngine();
 
     // mix CR and casing along with whitespace
     // notice case insensitive value on key and value
     let contents: string = 'some line\r\n  item: Bar \r other line \r\n Item: baz';
 
-    let res: irm.ITagResults = eng.processRules(contents);
+    let res: irm.ITagResults = eng.processRules(contents, issueRules.rules);
     expect(res.tagsToAdd.indexOf('Area: Bar')).toBeGreaterThanOrEqual(0);
     expect(res.assigneesToAdd.indexOf('John')).toBeGreaterThanOrEqual(0);
     done();
@@ -67,14 +68,15 @@ describe('My Probot app', () => {
 
   test('valueFor contains rules work', async(done) => {
     let yc = await irm.loadYamlContents(testYamlPath('valueFor'));
-    let eng: irm.RuleEngine = new irm.RuleEngine(yc);
+    let issueRules: irm.IIssueRules = irm.parseYamlContents(yc);
+    let eng: irm.RuleEngine = new irm.RuleEngine();
 
     // aFooBar should match the rule of contains Foo
     // mix CR and casing along with whitespace
     // notice case insensitive value on key and value
     let contents: string = 'some line\r\n  item: aFooBar \r other line \r\n Item: baz';
 
-    let res: irm.ITagResults = eng.processRules(contents);
+    let res: irm.ITagResults = eng.processRules(contents, issueRules.rules);
     console.log(res);
     expect(res.tagsToAdd.indexOf('Area: Foo')).toBeGreaterThanOrEqual(0);
     expect(res.assigneesToAdd.indexOf('John')).toBeGreaterThanOrEqual(0);
