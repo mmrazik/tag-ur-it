@@ -29,6 +29,7 @@ export interface IIssueRule {
 export interface ITagsRule {
   noneIn: string[];
   noneMatch: string;
+  addTags: string[];
 }
 
 export interface ITagResults {
@@ -95,6 +96,18 @@ export class RuleEngine {
     return results;
   }
 
+  public processTags(tags: string[], tagRules: ITagsRule[]) {
+    for(let i = 0; i < tagRules.length; i++) {
+      let rule: ITagsRule = tagRules[i];
+      if (rule.noneIn) {
+        this.addIfNoneIn(rule.addTags, rule.noneIn, tags);
+      }
+      else if (rule.noneMatch) {
+        this.addIfNoneMatch(rule.addTags, rule.noneMatch, tags);
+      }
+    }
+  }
+
   public addIfNoneIn(add:string[], ifNone: string[], inTags: string[]) {
     let found: boolean = false;
 
@@ -108,6 +121,22 @@ export class RuleEngine {
     if (!found) {
       this.pushValues(inTags, add);
     }
+  }
+
+  public addIfNoneMatch(add: string[], ifNoneMatch: string, inTags: string[]) {
+    let found: boolean = false;
+    //let regex = new RegExp(ifNoneMatch, "i");
+
+    for (let i = 0; i < inTags.length; i++) {
+      if (inTags[i].match(ifNoneMatch)) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      this.pushValues(inTags, add);
+    } 
   }
 
   private processRulesForLine(line: string, rules: IIssueRule[]): ITagResults {

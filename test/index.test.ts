@@ -90,10 +90,58 @@ describe('My Probot app', () => {
                     ['xyz'],          // ifNone
                     tagSet);          // in
 
-    console.log(tagSet);
     expect(tagSet.length).toBe(4);
     done();
-  })   
+  })
+
+  test('does not adds tags if in set', async(done) => {
+    let eng: irm.RuleEngine = new irm.RuleEngine();
+    let tagSet: string[] = ['el1', 'el2'];
+    eng.addIfNoneIn(['add1', 'add2'], // add
+                    ['el1'],          // ifNone
+                    tagSet);          // in
+
+    expect(tagSet.length).toBe(2);
+    done();
+  })  
+  
+  test('adds tags if none match expression', async(done) => {
+    let eng: irm.RuleEngine = new irm.RuleEngine();
+    let tagSet: string[] = ['el1', 'el2'];
+    eng.addIfNoneMatch(['add1', 'add2'], '\s*Area:\s*([^]*)', tagSet);
+
+    expect(tagSet.length).toBe(4);
+    done();
+  })
+
+  test('does not add tags if set matches expression', async(done) => {
+    let eng: irm.RuleEngine = new irm.RuleEngine();
+    let tagSet: string[] = ['Area: Foo', 'el2'];
+    eng.addIfNoneMatch(['add1', 'add2'], '\s*Area:\s*([^]*)', tagSet);
+
+    expect(tagSet.length).toBe(2);
+    done();
+  })    
+
+  test('e2e adds triage tag appropriately', async(done) => {
+    let yc = await irm.loadYamlContents(testYamlPath('basic'));
+    let issueRules: irm.IIssueRules = irm.parseYamlContents(yc);
+    let eng: irm.RuleEngine = new irm.RuleEngine();
+
+    // aFooBar should match the rule of contains Foo
+    // mix CR and casing along with whitespace
+    // notice case insensitive value on key and value
+    let contents: string = 'some line\r\n  item: aFooBar \r other line \r\n Item: baz';
+
+    let res: irm.ITagResults = eng.processRules(contents, issueRules.rules);
+    console.log(res);
+    expect(res.tagsToAdd.indexOf('Area: Foo')).toBeGreaterThanOrEqual(0);
+    expect(res.assigneesToAdd.indexOf('Bob')).toBeGreaterThanOrEqual(0);
+
+    eng.processTags(res.tagsToAdd, issueRules.tags);
+    expect(res.tagsToAdd.indexOf('triage')).toBeGreaterThanOrEqual(0);
+    done();
+  })
 
   // test('creates a comment when an issue is opened', async (done) => {
   //   // Test that we correctly return a test token
