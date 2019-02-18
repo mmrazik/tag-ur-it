@@ -1,11 +1,11 @@
 
 # primary rules
 rules:
-- valueFor: 'Item:'
+- valueFor: 'Item'
   contains: 'Foo'
   addTags: ['Area: Foo']
   assign: ['Bob']
-- valueFor: 'Item:'
+- valueFor: 'Item'
   equals: 'Bar'
   addTags: ['Area: Bar']
 - option: 'Feature'

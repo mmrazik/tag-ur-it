@@ -72,6 +72,44 @@ export class RuleEngine {
    
   }
 
+  public processRules(issueContents: string, rules: IIssueRule[]): ITagResults {
+    let results: ITagResults = <ITagResults>{};
+    results.tagsToAdd = [];
+    results.assigneesToAdd = [];
+
+    this._valueForMap = {};
+    for (let i=0; i < rules.length; i++) {
+      let key: string | undefined = rules[i].valueFor;
+      if (key) {
+        this._valueForMap[key.toUpperCase()] = true;
+      }
+    }  
+
+    let lines: string[] = splitLines(issueContents);
+    for (let i=0; i < lines.length; i++) {
+      let lr = this.processRulesForLine(lines[i], rules);
+      this.pushValues(results.tagsToAdd, lr.tagsToAdd);
+      this.pushValues(results.assigneesToAdd, lr.assigneesToAdd);
+    }
+
+    return results;
+  }
+
+  public addIfNoneIn(add:string[], ifNone: string[], inTags: string[]) {
+    let found: boolean = false;
+
+    for (let i = 0; i < ifNone.length; i++) {
+      if (inTags.indexOf(ifNone[i]) >= 0) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      this.pushValues(inTags, add);
+    }
+  }
+
   private processRulesForLine(line: string, rules: IIssueRule[]): ITagResults {
     let results: ITagResults = <ITagResults>{};
     results.tagsToAdd = [];
@@ -109,29 +147,6 @@ export class RuleEngine {
 
     return results;
   }  
-
-  public processRules(issueContents: string, rules: IIssueRule[]): ITagResults {
-    let results: ITagResults = <ITagResults>{};
-    results.tagsToAdd = [];
-    results.assigneesToAdd = [];
-
-    this._valueForMap = {};
-    for (let i=0; i < rules.length; i++) {
-      let key: string | undefined = rules[i].valueFor;
-      if (key) {
-        this._valueForMap[key.toUpperCase()] = true;
-      }
-    }  
-
-    let lines: string[] = splitLines(issueContents);
-    for (let i=0; i < lines.length; i++) {
-      let lr = this.processRulesForLine(lines[i], rules);
-      this.pushValues(results.tagsToAdd, lr.tagsToAdd);
-      this.pushValues(results.assigneesToAdd, lr.assigneesToAdd);
-    }
-
-    return results;
-  }
   
   private pushValues(arr: string[], values: string[]) {
     if (values) {

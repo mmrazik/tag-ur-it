@@ -12,6 +12,7 @@ import * as irm from '../src/issuerules'
 
 // Requiring our fixtures
 import payload from './fixtures/issues.opened.json'
+import { S_IFMT } from 'constants';
 
 const issueCreatedBody = { body: 'Thanks for opening this issue!' }
 
@@ -80,7 +81,19 @@ describe('My Probot app', () => {
     expect(res.tagsToAdd.indexOf('Area: Foo')).toBeGreaterThanOrEqual(0);
     expect(res.assigneesToAdd.indexOf('John')).toBeGreaterThanOrEqual(0);
     done();
-  })    
+  }) 
+  
+  test('adds tags if noneIn set', async(done) => {
+    let eng: irm.RuleEngine = new irm.RuleEngine();
+    let tagSet: string[] = ['el1', 'el2'];
+    eng.addIfNoneIn(['add1', 'add2'], // add
+                    ['xyz'],          // ifNone
+                    tagSet);          // in
+
+    console.log(tagSet);
+    expect(tagSet.length).toBe(4);
+    done();
+  })   
 
   // test('creates a comment when an issue is opened', async (done) => {
   //   // Test that we correctly return a test token
