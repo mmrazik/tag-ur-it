@@ -3,7 +3,7 @@
     <img src="art/tag-ur-it.png" alt="alternate text">
  </p>
 
-CAUTION: still under early development.
+**LOOK AWAY** - *still under early development*
 
 # tag-ur-it
 
