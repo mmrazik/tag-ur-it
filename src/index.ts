@@ -14,13 +14,9 @@ export = (app: Application) => {
       console.log('running rules ...');
       let fileInfo = context.issue({ path: 'issue-rules.yml'});
       let fileContents = await context.github.repos.getContents(fileInfo);
-      // console.log("contents:");
   
       // TODO: replace with Buffer.alloc
       let buff = new Buffer(fileContents.data.content, fileContents.data.encoding); 
-      // console.log(buff.toString());
-      console.log("loading yaml contents")
-      //let yamlContents = await irm.loadYamlContents(buff.toString());
       let issueRules: irm.IIssueRules = irm.parseYamlContents(buff.toString());
       let eng: irm.RuleEngine = new irm.RuleEngine();
     
@@ -29,20 +25,18 @@ export = (app: Application) => {
       console.log('results:')
       console.log(results);
 
-      if (results.tagsToAdd && results.tagsToAdd.length == 0) {
+      if (results.labelsToAdd && results.labelsToAdd.length == 0) {
         results = eng.processRules(context.payload.issue.body, issueRules.noMatches);
         console.log('results:')
         console.log(results);        
       }
   
-      eng.processTags(results.tagsToAdd, issueRules.tags); 
+      eng.processTags(results.labelsToAdd, issueRules.tags); 
       console.log("tagsToAdd");
-      console.log(results.tagsToAdd);   
+      console.log(results.labelsToAdd);   
   
-      //const labels = context.issue({labels:['bug', 'enhancement']});
-      const labels = context.issue({labels:results.tagsToAdd});
+      const labels = context.issue({labels:results.labelsToAdd});
       let res = await context.github.issues.addLabels(labels);
-      // console.log('added label', res);
 
       if (results.assigneesToAdd && results.assigneesToAdd.length > 0) {
         const assignees = context.issue({assignees:results.assigneesToAdd});

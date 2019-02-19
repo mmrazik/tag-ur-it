@@ -22,18 +22,18 @@ export interface IIssueRule {
   equals: string;
 
   // actions
-  addTags: string[];
+  addLabels: string[];
   assign: string[];
 }
 
 export interface ITagsRule {
   noneIn: string[];
   noneMatch: string;
-  addTags: string[];
+  addLabels: string[];
 }
 
 export interface ITagResults {
-  tagsToAdd: string[]
+  labelsToAdd: string[]
   assigneesToAdd: string[]
 }
 
@@ -75,7 +75,7 @@ export class RuleEngine {
 
   public processRules(issueContents: string, rules: IIssueRule[]): ITagResults {
     let results: ITagResults = <ITagResults>{};
-    results.tagsToAdd = [];
+    results.labelsToAdd = [];
     results.assigneesToAdd = [];
 
     this._valueForMap = {};
@@ -89,11 +89,11 @@ export class RuleEngine {
     let lines: string[] = splitLines(issueContents);
     for (let i=0; i < lines.length; i++) {
       let lr = this.processRulesForLine(lines[i], rules);
-      if (lr.tagsToAdd.length == 0 && lr.assigneesToAdd.length == 0) {
+      if (lr.labelsToAdd.length == 0 && lr.assigneesToAdd.length == 0) {
         lr = this.processContentRulesForLine(lines[i], rules);
       }
 
-      this.pushValues(results.tagsToAdd, lr.tagsToAdd);
+      this.pushValues(results.labelsToAdd, lr.labelsToAdd);
       this.pushValues(results.assigneesToAdd, lr.assigneesToAdd);      
     }
 
@@ -104,10 +104,10 @@ export class RuleEngine {
     for(let i = 0; i < tagRules.length; i++) {
       let rule: ITagsRule = tagRules[i];
       if (rule.noneIn) {
-        this.addIfNoneIn(rule.addTags, rule.noneIn, tags);
+        this.addIfNoneIn(rule.addLabels, rule.noneIn, tags);
       }
       else if (rule.noneMatch) {
-        this.addIfNoneMatch(rule.addTags, rule.noneMatch, tags);
+        this.addIfNoneMatch(rule.addLabels, rule.noneMatch, tags);
       }
     }
   }
@@ -145,7 +145,7 @@ export class RuleEngine {
 
   private processRulesForLine(line: string, rules: IIssueRule[]): ITagResults {
     let results: ITagResults = <ITagResults>{};
-    results.tagsToAdd = [];
+    results.labelsToAdd = [];
     results.assigneesToAdd = [];
     
     line = line.trim();
@@ -171,7 +171,7 @@ export class RuleEngine {
           }
 
           if (match) {
-            this.pushValues(results.tagsToAdd, rule.addTags);
+            this.pushValues(results.labelsToAdd, rule.addLabels);
             this.pushValues(results.assigneesToAdd, rule.assign);
           }
         }
@@ -183,7 +183,7 @@ export class RuleEngine {
   
   private processContentRulesForLine(line: string, rules: IIssueRule[]): ITagResults {
     let results: ITagResults = <ITagResults>{};
-    results.tagsToAdd = [];
+    results.labelsToAdd = [];
     results.assigneesToAdd = [];
     
     line = line.trim();
@@ -197,7 +197,7 @@ export class RuleEngine {
       }
 
       if (match) {
-        this.pushValues(results.tagsToAdd, rule.addTags);
+        this.pushValues(results.labelsToAdd, rule.addLabels);
         this.pushValues(results.assigneesToAdd, rule.assign);
       }
     }

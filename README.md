@@ -7,7 +7,7 @@
 
 # tag-ur-it
 
-A GitHub App  that Bot to automatically tag issues based on a rules yml file in the repo
+A GitHub App  that Bot to automatically tag issues with labels and assignees based on a rules yml file in the repo
 
 ## Development
 

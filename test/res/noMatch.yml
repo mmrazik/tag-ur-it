@@ -2,10 +2,10 @@
 # add likely teams to look at based on text searches
 nomatches:
 - contains: 'Xcode' 
-  addTags: ['Area: Cross Platform']
+  addLabels: ['Area: Cross Platform']
 - contains: 'Azure' 
-  addTags: ['Area: Release']
+  addLabels: ['Area: Release']
 - contains: 'Bash' 
-  addTags: ['Area: Core']
+  addLabels: ['Area: Core']
 - matches: 'todoRegEx here'
-  addTags: []
+  addLabels: []

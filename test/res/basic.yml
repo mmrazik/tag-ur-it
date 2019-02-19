@@ -3,26 +3,26 @@
 rules:
 - valueFor: 'Item'
   contains: 'Foo'
-  addTags: ['Area: Foo']
+  addLabels: ['Area: Foo']
   assign: ['Bob']
 - valueFor: 'Item'
   equals: 'Bar'
-  addTags: ['Area: Bar']
+  addLabels: ['Area: Bar']
 - option: 'Feature'
-  addTags: ['enhancement']
+  addLabels: ['enhancement']
 - option: 'Bug'
-  addTags: ['bug']
+  addLabels: ['bug']
 
 # runs if first set had no matches
 # add likely teams to look at based on text searches
 nomatches:
 - contains: 'foo' 
-  addTags: ['Area: foo']
+  addLabels: ['Area: foo']
 
 # always runs after rules.  look for missing or invalid sets of tags
 tags:
 - noneIn: ['bug', 'feature', 'question']
-  addTags: ['triage']
+  addLabels: ['triage']
 - noneMatch: '\s*Area:\s*([^]*)'
-  addTags: ['route']
+  addLabels: ['route']
 

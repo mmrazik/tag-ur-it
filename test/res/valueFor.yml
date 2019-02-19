@@ -4,12 +4,12 @@ rules:
 # both
 - valueFor: 'Item'
   contains: 'Foo'
-  addTags: ['Area: Foo']
+  addLabels: ['Area: Foo']
   assign: ['Bob']
 # just addTags
 - valueFor: 'Item'
   equals: 'Bar'
-  addTags: ['Area: Bar']
+  addLabels: ['Area: Bar']
 #just assign
 - valueFor: 'Item'
   equals: 'Baz'

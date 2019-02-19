@@ -62,7 +62,7 @@ describe('My Probot app', () => {
     let contents: string = 'some line\r\n  item: Bar \r other line \r\n Item: baz';
 
     let res: irm.ITagResults = eng.processRules(contents, issueRules.rules);
-    expect(res.tagsToAdd.indexOf('Area: Bar')).toBeGreaterThanOrEqual(0);
+    expect(res.labelsToAdd.indexOf('Area: Bar')).toBeGreaterThanOrEqual(0);
     expect(res.assigneesToAdd.indexOf('John')).toBeGreaterThanOrEqual(0);
     done();
   })
@@ -78,7 +78,7 @@ describe('My Probot app', () => {
     let contents: string = 'some line\r\n  item: aFooBar \r other line \r\n Item: baz';
 
     let res: irm.ITagResults = eng.processRules(contents, issueRules.rules);
-    expect(res.tagsToAdd.indexOf('Area: Foo')).toBeGreaterThanOrEqual(0);
+    expect(res.labelsToAdd.indexOf('Area: Foo')).toBeGreaterThanOrEqual(0);
     expect(res.assigneesToAdd.indexOf('John')).toBeGreaterThanOrEqual(0);
     done();
   }) 
@@ -91,8 +91,8 @@ describe('My Probot app', () => {
     let contents: string = '  description here \r\n using Bash and Azure together';
 
     let res: irm.ITagResults = eng.processRules(contents, issueRules.noMatches);
-    expect(res.tagsToAdd.indexOf('Area: Release')).toBeGreaterThanOrEqual(0);
-    expect(res.tagsToAdd.indexOf('Area: Core')).toBeGreaterThanOrEqual(0);
+    expect(res.labelsToAdd.indexOf('Area: Release')).toBeGreaterThanOrEqual(0);
+    expect(res.labelsToAdd.indexOf('Area: Core')).toBeGreaterThanOrEqual(0);
     done();
   })   
   
@@ -148,11 +148,11 @@ describe('My Probot app', () => {
 
     let res: irm.ITagResults = eng.processRules(contents, issueRules.rules);
     console.log(res);
-    expect(res.tagsToAdd.indexOf('Area: Foo')).toBeGreaterThanOrEqual(0);
+    expect(res.labelsToAdd.indexOf('Area: Foo')).toBeGreaterThanOrEqual(0);
     expect(res.assigneesToAdd.indexOf('Bob')).toBeGreaterThanOrEqual(0);
 
-    eng.processTags(res.tagsToAdd, issueRules.tags);
-    expect(res.tagsToAdd.indexOf('triage')).toBeGreaterThanOrEqual(0);
+    eng.processTags(res.labelsToAdd, issueRules.tags);
+    expect(res.labelsToAdd.indexOf('triage')).toBeGreaterThanOrEqual(0);
     done();
   })
 
