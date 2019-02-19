@@ -82,6 +82,19 @@ describe('My Probot app', () => {
     expect(res.assigneesToAdd.indexOf('John')).toBeGreaterThanOrEqual(0);
     done();
   }) 
+
+  test('noMatch text contains', async(done) => {
+    let yc = await irm.loadYamlContents(testYamlPath('noMatch'));
+    let issueRules: irm.IIssueRules = irm.parseYamlContents(yc);
+    let eng: irm.RuleEngine = new irm.RuleEngine();
+
+    let contents: string = '  description here \r\n using Bash and Azure together';
+
+    let res: irm.ITagResults = eng.processRules(contents, issueRules.noMatches);
+    expect(res.tagsToAdd.indexOf('Area: Release')).toBeGreaterThanOrEqual(0);
+    expect(res.tagsToAdd.indexOf('Area: Core')).toBeGreaterThanOrEqual(0);
+    done();
+  })   
   
   test('adds tags if noneIn set', async(done) => {
     let eng: irm.RuleEngine = new irm.RuleEngine();
@@ -112,7 +125,7 @@ describe('My Probot app', () => {
 
     expect(tagSet.length).toBe(4);
     done();
-  })
+  })  
 
   test('does not add tags if set matches expression', async(done) => {
     let eng: irm.RuleEngine = new irm.RuleEngine();

@@ -89,8 +89,12 @@ export class RuleEngine {
     let lines: string[] = splitLines(issueContents);
     for (let i=0; i < lines.length; i++) {
       let lr = this.processRulesForLine(lines[i], rules);
+      if (lr.tagsToAdd.length == 0 && lr.assigneesToAdd.length == 0) {
+        lr = this.processContentRulesForLine(lines[i], rules);
+      }
+
       this.pushValues(results.tagsToAdd, lr.tagsToAdd);
-      this.pushValues(results.assigneesToAdd, lr.assigneesToAdd);
+      this.pushValues(results.assigneesToAdd, lr.assigneesToAdd);      
     }
 
     return results;
@@ -175,7 +179,31 @@ export class RuleEngine {
     }
 
     return results;
-  }  
+  }
+  
+  private processContentRulesForLine(line: string, rules: IIssueRule[]): ITagResults {
+    let results: ITagResults = <ITagResults>{};
+    results.tagsToAdd = [];
+    results.assigneesToAdd = [];
+    
+    line = line.trim();
+
+    for (let i = 0; i < rules.length; i++) {
+      let match: boolean = false;
+      let rule: IIssueRule = rules[i];
+
+      if (!rule.valueFor && rule.contains && line.toUpperCase().indexOf(rule.contains.toUpperCase()) >= 0) {
+        match = true;
+      }
+
+      if (match) {
+        this.pushValues(results.tagsToAdd, rule.addTags);
+        this.pushValues(results.assigneesToAdd, rule.assign);
+      }
+    }
+
+    return results;
+  }
   
   private pushValues(arr: string[], values: string[]) {
     if (values) {
