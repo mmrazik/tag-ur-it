@@ -30,7 +30,7 @@ For more, check out the [Contributing Guide](CONTRIBUTING.md).
 
 ## License
 
-[ISC](LICENSE) © 2019 Bryan MacFarlane <bryanmacf@gmail.com> (https://github.com/bryanmacfarlane)
+[ISC](LICENSE) © 2019 Bryan MacFarlane (https://github.com/bryanmacfarlane)
 
 ## Credit
 Built with [Probot](https://github.com/probot/probot)
