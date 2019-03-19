@@ -4,55 +4,50 @@ import * as irm from './issuerules'
 
 export = (app: Application) => {
   app.on('issues.opened', async (context: Context) => {
-    console.log('---------------------');
-    console.log("ISSUE OPENED");
-    console.log('---------------------');
+    console.log(context.payload.issue.url);
+
+    let fileContents = null;
     try {
-      console.log(context.issue());
-      console.log(context.payload.issue.body);
-  
-      console.log('running rules ...');
       let fileInfo = context.issue({ path: 'issue-rules.yml'});
-      let fileContents = await context.github.repos.getContents(fileInfo);
-  
-      if (fileContents) {
-        // TODO: replace with Buffer.alloc
-        let buff = new Buffer(fileContents.data.content, fileContents.data.encoding); 
-        let issueRules: irm.IIssueRules = irm.parseYamlContents(buff.toString());
-        let eng: irm.RuleEngine = new irm.RuleEngine();
-      
-        console.log("processing rules");
-        let results: irm.ITagResults = eng.processRules(context.payload.issue.body, issueRules.rules);
-        console.log('results:')
-        console.log(results);
-
-        if (results.labelsToAdd && results.labelsToAdd.length == 0) {
-          results = eng.processRules(context.payload.issue.body, issueRules.noMatches);
-          console.log('results:')
-          console.log(results);        
-        }
-    
-        eng.processTags(results.labelsToAdd, issueRules.tags); 
-        console.log("tagsToAdd");
-        console.log(results.labelsToAdd);   
-    
-        const labels = context.issue({labels:results.labelsToAdd});
-        let res = await context.github.issues.addLabels(labels);
-
-        if (results.assigneesToAdd && results.assigneesToAdd.length > 0) {
-          const assignees = context.issue({assignees:results.assigneesToAdd});
-          let assignRes = await context.github.issues.addAssignees(assignees);
-        } 
-      }
-      else {
-        console.log("no issue-rules.yml file");
-      }
-
-      const issueComment = context.issue({ body: 'Thanks for opening this issue!!' })
-      await context.github.issues.createComment(issueComment)
+      fileContents = await context.github.repos.getContents(fileInfo);
     }
     catch (err) {
-      console.error(err);
+      console.log("issue-rules.yml does not exist");
+    }
+
+    try {
+      if (!fileContents) {
+        return;
+      }
+
+      // TODO: replace with Buffer.alloc
+      let buff = new Buffer(fileContents.data.content, fileContents.data.encoding); 
+      let issueRules: irm.IIssueRules = irm.parseYamlContents(buff.toString());
+      let eng: irm.RuleEngine = new irm.RuleEngine();
+    
+      let results: irm.ITagResults = eng.processRules(context.payload.issue.body, issueRules.rules);
+
+      if (results.labelsToAdd && results.labelsToAdd.length == 0) {
+        results = eng.processRules(context.payload.issue.body, issueRules.noMatches);
+      }
+  
+      eng.processTags(results.labelsToAdd, issueRules.tags); 
+      
+      const labels = context.issue({labels:results.labelsToAdd});
+      let res = await context.github.issues.addLabels(labels);
+
+      if (results.assigneesToAdd && results.assigneesToAdd.length > 0) {
+        const assignees = context.issue({assignees:results.assigneesToAdd});
+        let assignRes = await context.github.issues.addAssignees(assignees);
+      } 
+
+      // this is too noisy for emails
+      // TODO: add this as a config option to issue-rules.yml
+      // const issueComment = context.issue({ body: 'Thanks for opening this issue!!' })
+      // await context.github.issues.createComment(issueComment)
+    }
+    catch (err) {
+      // TODO: figure out a good tracing / logging story
     }
 
   })
